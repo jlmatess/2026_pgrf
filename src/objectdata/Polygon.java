@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Immutable data structure representing a general two-dimensional Polygon
- */
 public class Polygon {
 
     private final List<Point> points;
@@ -23,12 +20,6 @@ public class Polygon {
         points = polygon.points;
     }
 
-    /**
-     * Returns a new Polygon instance containing the given point.
-     *
-     * @param point point to add
-     * @return new Polygon instance
-     */
     public Polygon withPoint(final Point point) {
         final List<Point> newPoints = new ArrayList<>(this.points);
         newPoints.add(point);
@@ -81,11 +72,6 @@ public class Polygon {
         return new Polygon(newPoints);
     }
 
-    /**
-     * Tests whether this polygon's orientation is clock-wise
-     *
-     * @return true if orientation is clock-wise
-     */
     public boolean isCW() {
         if (points.size() < 3) {
             return false;
