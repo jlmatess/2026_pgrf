@@ -37,5 +37,12 @@ public class SeedFill8 implements SeedFill{
                 }
             }
         }
+
     }
+    @Override
+    public void fill(final Raster raster, final int c, final int r, final Predicate<Integer> isInArea, final int fillColor) {
+        rasterdata.RasterBI singlePixel = new rasterdata.RasterBI(1, 1);
+        singlePixel.setColor(0, 0, fillColor);
+        fill(raster, c, r, isInArea, singlePixel);
     }
+}

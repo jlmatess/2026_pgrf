@@ -35,25 +35,10 @@ public class SeedFill4 implements SeedFill {
             }
         }
     }
-
     @Override
     public void fill(final Raster raster, final int c, final int r, final Predicate<Integer> isInArea, final int fillColor) {
-        // 1. Get color at seed (current color)
-        final Optional<Integer> maybeCurrentColor = raster.getColor(c, r);
-        if (maybeCurrentColor.isPresent()) { // false if seed address is invalid
-            final Integer currentColor = maybeCurrentColor.get();
-            // 2. Compare current color with bgColor
-            if (isInArea.test(currentColor)) {
-                // Set color of the seed using fillColor
-                raster.setColor(c, r, fillColor);
-                // Repeat for neighbors
-                fill(raster, c, r + 1, isInArea, fillColor);
-                fill(raster, c, r - 1, isInArea, fillColor);
-                fill(raster, c + 1, r, isInArea, fillColor);
-                fill(raster, c - 1, r, isInArea, fillColor);
-            }
-
-        }
-
+        rasterdata.RasterBI singlePixel = new rasterdata.RasterBI(1, 1);
+        singlePixel.setColor(0, 0, fillColor);
+        fill(raster, c, r, isInArea, singlePixel);
     }
 }

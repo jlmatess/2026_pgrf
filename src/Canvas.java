@@ -253,7 +253,7 @@ public class Canvas {
             image.getColor(sx, sy).ifPresent(clickedColor -> {
                 SeedFill filler = seedFill8Mode ? seedFill8 : seedFill4;
                 var predicate = seedFillBorderMode
-                        ? SeedFill.checkBorder(0xFFFF00)
+                        ? SeedFill.checkBorder(0xFFFFFF00)
                         : SeedFill.checkBackground(clickedColor);
                 if (patternFillEnabled) {
                     filler.fill(image, sx, sy, predicate, createPattern());
