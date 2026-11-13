@@ -60,6 +60,8 @@ public class Canvas {
     private Point seedPoint = null;
 
     private int draggedPointIndex = -1;
+    private int fillColor = 0x3366FF;
+    private int outlineColor = 0xFFFF00;
 
     public Canvas(final int width, final int height) {
         frame = new JFrame();
@@ -176,6 +178,32 @@ public class Canvas {
         });
 
         frame.add(panel, BorderLayout.CENTER);
+        JPanel toolbar = new JPanel();
+        JButton btnFillColor = new JButton("Barva vyplne");
+        JButton btnOutlineColor = new JButton("Barva okraje");
+
+        btnFillColor.addActionListener(e -> {
+            Color chosen = JColorChooser.showDialog(frame, "Vyber barvu vyplne", new Color(fillColor));
+            if (chosen != null) {
+                fillColor = chosen.getRGB() & 0xFFFFFF;
+                redraw();
+            }
+            panel.requestFocusInWindow();
+        });
+
+        btnOutlineColor.addActionListener(e -> {
+            Color chosen = JColorChooser.showDialog(frame, "Vyber barvu okraje", new Color(outlineColor));
+            if (chosen != null) {
+                outlineColor = chosen.getRGB() & 0xFFFFFF;
+                redraw();
+            }
+            panel.requestFocusInWindow();
+        });
+
+        toolbar.add(btnFillColor);
+        toolbar.add(btnOutlineColor);
+        frame.add(toolbar, BorderLayout.NORTH);
+
         frame.pack();
         frame.setVisible(true);
         panel.requestFocusInWindow();
@@ -217,9 +245,13 @@ public class Canvas {
         }
 
         if (scanLineEnabled && polygon.getPoints().size() >= 3) {
-            scanLine.fill(image, polygon, 0x3366FF, 0xFFFF00, polygonRasterizer, lineRasterizer);
+            if (patternFillEnabled) {
+                scanLine.fill(image, polygon, createPattern(), outlineColor, polygonRasterizer, lineRasterizer);
+            } else {
+                scanLine.fill(image, polygon, fillColor, outlineColor, polygonRasterizer, lineRasterizer);
+            }
         } else {
-            polygonRasterizer.draw(image, polygon, lineRasterizer, 0xFFFF00);
+            polygonRasterizer.draw(image, polygon, lineRasterizer, outlineColor);
         }
 
         if (clippingEnabled) {
@@ -253,12 +285,12 @@ public class Canvas {
             image.getColor(sx, sy).ifPresent(clickedColor -> {
                 SeedFill filler = seedFill8Mode ? seedFill8 : seedFill4;
                 var predicate = seedFillBorderMode
-                        ? SeedFill.checkBorder(0xFFFFFF00)
+                        ? SeedFill.checkBorder(0xFF000000 | outlineColor)
                         : SeedFill.checkBackground(clickedColor);
                 if (patternFillEnabled) {
                     filler.fill(image, sx, sy, predicate, createPattern());
                 } else {
-                    filler.fill(image, sx, sy, predicate, 0x00AA55);
+                    filler.fill(image, sx, sy, predicate, fillColor);
                 }
             });
         }
