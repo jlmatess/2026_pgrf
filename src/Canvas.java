@@ -62,10 +62,11 @@ public class Canvas {
     private int draggedPointIndex = -1;
     private int fillColor = 0x3366FF;
     private int outlineColor = 0xFFFF00;
+    private AbstractButton btnPattern;
 
     public Canvas(final int width, final int height) {
         frame = new JFrame();
-        frame.setTitle("PGRF1 - Uloha 2 (M: Rezim, F: SeedFill, B: Pozadi/Hranice, 8: 4/8-soused, P: Vzor, S: ScanLine, O: Orezani, C: Smazat)");
+        frame.setTitle("PGRF1 - Uloha 2 | Matěj Šír");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         image = new RasterBI(width, height);
@@ -160,6 +161,7 @@ public class Canvas {
                     }
                     case KeyEvent.VK_P -> {
                         patternFillEnabled = !patternFillEnabled;
+                        btnPattern.setSelected(patternFillEnabled);
                         System.out.println("Vyplneni vzorem: " + (patternFillEnabled ? "ZAPNUTO" : "VYPNUTO"));
                         redraw();
                     }
@@ -177,15 +179,29 @@ public class Canvas {
             }
         });
 
-        frame.add(panel, BorderLayout.CENTER);
-        JPanel toolbar = new JPanel();
-        JButton btnFillColor = new JButton("Barva vyplne");
+        JPanel topBar = new JPanel(new BorderLayout());
+        topBar.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
+
+        JButton btnFillColor = new JButton("Barva výplně");
+        btnFillColor.setBackground(new Color(fillColor));
+        btnFillColor.setForeground(Color.WHITE);
+        btnFillColor.setFocusPainted(false);
+
         JButton btnOutlineColor = new JButton("Barva okraje");
+        btnOutlineColor.setBackground(new Color(outlineColor));
+        btnOutlineColor.setForeground(Color.BLACK);
+        btnOutlineColor.setFocusPainted(false);
+
+        btnPattern = new JToggleButton("Vzor (P)");
+        btnPattern.setFocusPainted(false);
 
         btnFillColor.addActionListener(e -> {
-            Color chosen = JColorChooser.showDialog(frame, "Vyber barvu vyplne", new Color(fillColor));
+            Color chosen = JColorChooser.showDialog(frame, "Vyber barvu výplně", new Color(fillColor));
             if (chosen != null) {
                 fillColor = chosen.getRGB() & 0xFFFFFF;
+                btnFillColor.setBackground(chosen);
                 redraw();
             }
             panel.requestFocusInWindow();
@@ -195,14 +211,37 @@ public class Canvas {
             Color chosen = JColorChooser.showDialog(frame, "Vyber barvu okraje", new Color(outlineColor));
             if (chosen != null) {
                 outlineColor = chosen.getRGB() & 0xFFFFFF;
+                btnOutlineColor.setBackground(chosen);
                 redraw();
             }
             panel.requestFocusInWindow();
         });
 
-        toolbar.add(btnFillColor);
-        toolbar.add(btnOutlineColor);
-        frame.add(toolbar, BorderLayout.NORTH);
+        btnPattern.addActionListener(e -> {
+            patternFillEnabled = btnPattern.isSelected();
+            redraw();
+            panel.requestFocusInWindow();
+        });
+
+        buttonsPanel.add(btnFillColor);
+        buttonsPanel.add(btnOutlineColor);
+        buttonsPanel.add(btnPattern);
+
+        JLabel helpLabel = new JLabel("[M] Režim | [F] SeedFill | [B] Pozadí/Hranice | [8] 4/8-soused | [S] ScanLine | [O] Ořezání | [C] Smazat");
+        helpLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        helpLabel.setForeground(Color.DARK_GRAY);
+
+        helpLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        helpLabel.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+
+        topBar.add(buttonsPanel, BorderLayout.CENTER);
+        frame.add(panel, BorderLayout.CENTER);
+        frame.add(topBar, BorderLayout.NORTH);
+        frame.add(helpLabel, BorderLayout.SOUTH);
+
+        frame.pack();
+        frame.add(panel, BorderLayout.CENTER);
+        frame.add(topBar, BorderLayout.NORTH);
 
         frame.pack();
         frame.setVisible(true);
