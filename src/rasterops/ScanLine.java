@@ -5,18 +5,27 @@ import objectdata.Polygon;
 import rasterdata.Raster;
 import java.util.ArrayList;
 import java.util.List;
-public class ScanLine {
+public class ScanLine implements PatternFill {
 
     public void fill(
-            final Raster raster,
-            final Polygon polygon,
-            final int fillColor,
-            final int outlineColor,
-            final PolygonRasterizer polygonRasterizer,
-            final LineRasterizer lineRasterizer) {
-        if (polygon.getPoints().size() < 3) {
-            return;
-        }
+    final Raster raster,
+    final Polygon polygon,
+    final int fillColor,
+    final int outlineColor,
+    final PolygonRasterizer polygonRasterizer,
+    final LineRasterizer lineRasterizer) {
+        final Raster pattern = new rasterdata.RasterBI(1, 1);
+        pattern.setColor(0, 0, fillColor);
+        fill(raster, polygon, pattern, outlineColor, polygonRasterizer, lineRasterizer);
+    }
+
+    public void fill(
+    final Raster raster,
+    final Polygon polygon,
+    final Raster pattern,
+    final int outlineColor,
+    final PolygonRasterizer polygonRasterizer,
+    final LineRasterizer lineRasterizer) {
 
         List<LineSegment> filteredOrientedLines = new ArrayList<>();
         double minY = Double.MAX_VALUE;
@@ -51,7 +60,7 @@ public class ScanLine {
                 int xEnd = (int) Math.floor(intersections.get(i + 1));
                 for (int x = xStart; x <= xEnd; x++) {
                     if (raster.isValid(x, y)) {
-                        raster.setColor(x, y, fillColor);
+                        raster.setColor(x, y, getPatternColor(pattern, x, y));
                     }
                 }
             }
